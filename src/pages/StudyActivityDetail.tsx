@@ -2,31 +2,18 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Clock, Users } from "lucide-react";
+import { Play, Clock, Users } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import { apiRequest } from "@/lib/api";
 
 // Mock data for study activities
 const studyActivities = {
-  "adventure-mud": {
-    id: "adventure-mud",
-    title: "Adventure MUD",
-    description: "Immerse yourself in a text-based adventure game while learning Chinese vocabulary. Navigate through different scenarios and interact with characters to practice reading comprehension and vocabulary acquisition.",
-    thumbnail: "🗺️",
-    launchUrl: "http://localhost:8081",
-    status: "active",
-    features: [
-      "Interactive storylines",
-      "Context-based vocabulary learning",
-      "Real-time feedback",
-      "Progress tracking",
-    ],
-  },
   "typing-tutor": {
     id: "typing-tutor",
     title: "Typing Tutor",
     description: "Practice typing Chinese characters using pinyin input methods. Improve your typing speed and accuracy while reinforcing character recognition and pinyin associations.",
     thumbnail: "⌨️",
-    launchUrl: "http://localhost:8082",
+    launchUrl: "/typing-tutor",
     status: "active",
     features: [
       "Pinyin input practice",
@@ -35,39 +22,39 @@ const studyActivities = {
       "Character recognition",
     ],
   },
+  "story-reader": {
+    id: "story-reader",
+    title: "Story Reader",
+    description: "Read Chinese stories with interactive vocabulary hints.",
+    thumbnail: "📖",
+    launchUrl: "/story-reader",
+    status: "beta",
+    features: ["Guided reading practice", "Vocabulary in context", "Reading comprehension"],
+  },
+  "character-quiz": {
+    id: "character-quiz",
+    title: "Character Quiz",
+    description: "Test your knowledge of Chinese characters and meanings.",
+    thumbnail: "❓",
+    launchUrl: "/character-quiz",
+    status: "active",
+    features: ["Character recognition", "Meaning recall", "Self-paced practice"],
+  },
 };
 
-// Mock sessions data
-const mockSessions = [
-  {
-    id: "1",
-    groupName: "Core Vocabulary",
-    groupId: "1",
-    startTime: "2024-01-15 14:30",
-    endTime: "2024-01-15 15:15",
-    reviewItems: 23,
-  },
-  {
-    id: "2",
-    groupName: "Travel Phrases",
-    groupId: "2",
-    startTime: "2024-01-14 09:15",
-    endTime: "2024-01-14 09:45",
-    reviewItems: 15,
-  },
-  {
-    id: "3",
-    groupName: "Core Vocabulary",
-    groupId: "1",
-    startTime: "2024-01-13 16:00",
-    endTime: "2024-01-13 16:30",
-    reviewItems: 18,
-  },
-];
+interface StudySession { id: string; activityId: string; startedAt: string; durationSeconds: number; wordsReviewed: number }
 
 export default function StudyActivityDetail() {
   const { id } = useParams();
   const activity = studyActivities[id as keyof typeof studyActivities];
+  const [recentSessions, setRecentSessions] = useState<StudySession[]>([]);
+
+  useEffect(() => {
+    if (!id) return;
+    apiRequest<{ sessions: StudySession[] }>("/api/sessions?search=")
+      .then(({ sessions }) => setRecentSessions(sessions.filter((session) => session.activityId === id).slice(0, 5)))
+      .catch(() => setRecentSessions([]));
+  }, [id]);
 
   if (!activity) {
     return (
@@ -85,9 +72,8 @@ export default function StudyActivityDetail() {
     );
   }
 
-  const handleLaunch = (groupId: string = "1") => {
-    const url = `${activity.launchUrl}?group_id=${groupId}`;
-    window.open(url, "_blank");
+  const handleLaunch = () => {
+    window.location.href = activity.launchUrl;
   };
 
   return (
@@ -125,7 +111,7 @@ export default function StudyActivityDetail() {
                 </div>
               </div>
               <Button onClick={() => handleLaunch()} className="w-full sm:w-auto">
-                <ExternalLink className="mr-2 h-4 w-4" />
+                <Play className="mr-2 h-4 w-4" />
                 Launch Activity
               </Button>
             </div>
@@ -145,7 +131,7 @@ export default function StudyActivityDetail() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {mockSessions.map((session) => (
+              {recentSessions.map((session) => (
                 <div
                   key={session.id}
                   className="flex items-center justify-between p-4 rounded-lg border bg-card-hover"
@@ -153,23 +139,18 @@ export default function StudyActivityDetail() {
                   <div className="flex items-center gap-4">
                     <Users className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <Link
-                        to={`/groups/${session.groupId}`}
-                        className="font-medium hover:text-primary transition-colors"
-                      >
-                        {session.groupName}
-                      </Link>
-                      <p className="text-sm text-muted-foreground">
-                        {session.startTime} - {session.endTime.split(' ')[1]}
-                      </p>
+                      <p className="font-medium">{new Date(session.startedAt).toLocaleString()}</p>
+                      <p className="text-sm text-muted-foreground">{Math.floor(session.durationSeconds / 60)}m {session.durationSeconds % 60}s</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{session.reviewItems} items</p>
+                    <p className="font-medium">{session.wordsReviewed} words</p>
                     <p className="text-sm text-muted-foreground">reviewed</p>
                   </div>
                 </div>
               ))}
+              {!recentSessions.length && <p className="py-4 text-sm text-muted-foreground">No sessions for this activity yet.</p>}
+              <Button variant="link" asChild><Link to="/sessions">View all session history</Link></Button>
             </div>
           </CardContent>
         </Card>
@@ -177,3 +158,4 @@ export default function StudyActivityDetail() {
     </Layout>
   );
 }
+import { useEffect, useState } from "react";

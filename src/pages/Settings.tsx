@@ -38,6 +38,7 @@ import {
   Volume2
 } from "lucide-react";
 import { toast } from "sonner";
+import { apiRequest } from "@/lib/api";
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
@@ -45,6 +46,7 @@ export default function Settings() {
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [autoPlayAudio, setAutoPlayAudio] = useState(false);
+  const [resetting, setResetting] = useState(false);
   
   const isDarkMode = theme === "dark";
 
@@ -52,15 +54,19 @@ export default function Settings() {
     setTheme(isDarkMode ? "light" : "dark");
   };
 
-  const handleResetHistory = () => {
+  const handleResetHistory = async () => {
     if (resetConfirmText === "reset me") {
-      // Mock reset functionality
-      console.log("Resetting database history...");
-      setResetDialogOpen(false);
-      setResetConfirmText("");
-      toast.success("History has been reset successfully", {
-        description: "All study progress and session data has been cleared.",
-      });
+      setResetting(true);
+      try {
+        await apiRequest("/api/sessions", { method: "DELETE" });
+        setResetDialogOpen(false);
+        setResetConfirmText("");
+        toast.success("History has been reset successfully", { description: "Your study sessions and word review statistics have been cleared." });
+      } catch (cause) {
+        toast.error(cause instanceof Error ? cause.message : "Could not reset study history.");
+      } finally {
+        setResetting(false);
+      }
     } else {
       toast.error("Please type 'reset me' to confirm", {
         description: "The confirmation text must match exactly.",
@@ -224,7 +230,7 @@ export default function Settings() {
                       <AlertDialogAction
                         onClick={handleResetHistory}
                         className="bg-destructive hover:bg-destructive/90"
-                        disabled={resetConfirmText !== "reset me"}
+                        disabled={resetConfirmText !== "reset me" || resetting}
                       >
                         Reset All Data
                       </AlertDialogAction>

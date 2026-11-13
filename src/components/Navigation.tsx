@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -7,7 +7,10 @@ import {
   FolderOpen,
   Clock,
   Settings,
+  Users,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/auth/AuthContext";
 
 const navigation = [
   {
@@ -44,6 +47,13 @@ const navigation = [
 
 export function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try { await signOut(); }
+    finally { navigate("/login", { replace: true }); }
+  };
 
   return (
     <nav className="border-b border-nav-border bg-nav-background">
@@ -79,7 +89,18 @@ export function Navigation() {
                   </Link>
                 );
               })}
+              {user?.role === "admin" && (
+                <Link to="/admin/users" className={cn("flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md", location.pathname.startsWith("/admin") ? "bg-nav-active text-primary-foreground" : "text-foreground hover:bg-nav-hover")}>
+                  <Users className="h-4 w-4" />Accounts
+                </Link>
+              )}
             </div>
+          </div>
+          <div className="ml-auto hidden md:flex items-center gap-3 text-sm">
+            <span className="text-muted-foreground">{user?.displayName}</span>
+            <button type="button" onClick={handleSignOut} className="flex items-center gap-2 rounded-md px-3 py-2 hover:bg-nav-hover" title="Sign out">
+              <LogOut className="h-4 w-4" />Sign out
+            </button>
           </div>
         </div>
       </div>

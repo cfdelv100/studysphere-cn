@@ -2,24 +2,16 @@ import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Eye } from "lucide-react";
+import { Play, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const studyActivities = [
-  {
-    id: "adventure-mud",
-    title: "Adventure MUD",
-    description: "Immersive text-based adventure game for vocabulary learning",
-    thumbnail: "🗺️",
-    launchUrl: "http://localhost:8081",
-    status: "active",
-  },
   {
     id: "typing-tutor",
     title: "Typing Tutor",
     description: "Practice typing Chinese characters with pinyin input",
     thumbnail: "⌨️",
-    launchUrl: "http://localhost:8082",
+    launchUrl: "/typing-tutor",
     status: "active",
   },
   {
@@ -27,7 +19,7 @@ const studyActivities = [
     title: "Story Reader",
     description: "Read Chinese stories with interactive vocabulary hints",
     thumbnail: "📖",
-    launchUrl: "http://localhost:8083",
+    launchUrl: "/story-reader",
     status: "beta",
   },
   {
@@ -35,17 +27,12 @@ const studyActivities = [
     title: "Character Quiz",
     description: "Test your knowledge of Chinese characters and meanings",
     thumbnail: "❓",
-    launchUrl: "http://localhost:8084",
+    launchUrl: "/character-quiz",
     status: "active",
   },
 ];
 
 export default function StudyActivities() {
-  const handleLaunch = (activity: typeof studyActivities[0], groupId: string = "1") => {
-    const url = `${activity.launchUrl}?group_id=${groupId}`;
-    window.open(url, "_blank");
-  };
-
   return (
     <Layout>
       <div className="space-y-6">
@@ -75,12 +62,11 @@ export default function StudyActivities() {
               </CardHeader>
               <CardContent>
                 <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleLaunch(activity)}
-                    className="flex-1"
-                  >
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Launch
+                  <Button asChild className="flex-1">
+                    <Link to={activity.launchUrl}>
+                      <Play className="mr-2 h-4 w-4" />
+                      Launch
+                    </Link>
                   </Button>
                   <Button
                     variant="outline"
