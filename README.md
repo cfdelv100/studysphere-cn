@@ -1,16 +1,12 @@
-# Welcome to your Lovable project
+## Mandarin Study Application
 
-## Project info
+Uses LLM wrapping to generate new questions in studying Mandarin Chinese. Production is in a web dashboard to see progress. 
+Future production will implement "dialectal" Chinese language focus areas such as Beijing, Cantonese, or Wu.  
 
-**URL**: https://lovable.dev/projects/48c470bf-3b7b-4939-b4d7-215c9734eca2
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/48c470bf-3b7b-4939-b4d7-215c9734eca2) and start prompting.
 
 Changes made via Lovable will be committed automatically to this repo.
 
@@ -36,12 +32,6 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
 **Use GitHub Codespaces**
 
 - Navigate to the main page of your repository.
@@ -60,14 +50,3 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/48c470bf-3b7b-4939-b4d7-215c9734eca2) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
